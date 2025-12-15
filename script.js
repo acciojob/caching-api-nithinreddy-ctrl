@@ -4,28 +4,32 @@ const resultsDiv = document.getElementById("results");
 const cache = new Map();
 
 const fetchData = async () => {
-  const url = "https://opentdb.com/api.php?amount=3";
-  const cached = cache.get(url);
+  const cacheKey = "apiData";
 
-  if (cached && Date.now() - cached.timestamp < 60000) {
-    console.log("Serving data from cache");
-    return cached.data;
+  if (cache.has(cacheKey)) {
+    const cachedValue = cache.get(cacheKey);
+
+    if (Date.now() - cachedValue.timestamp < 60000) {
+      console.log("Serving data from cache");
+      return cachedValue.data;
+    }
   }
 
   console.log("Making API call");
-  const response = await fetch(url);
+  const response = await fetch("https://opentdb.com/api.php?amount=3");
   const data = await response.json();
 
-  cache.set(url, {
+  cache.set(cacheKey, {
     timestamp: Date.now(),
-    data: data
+    data: data,
   });
 
   return data;
 };
 
 const displayData = (data) => {
-  resultsDiv.textContent = data.results[0].question;
+  const question = data.results[0].question;
+  resultsDiv.textContent = question;
 };
 
 fetchButton.addEventListener("click", async () => {
