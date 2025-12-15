@@ -1,18 +1,27 @@
-// complete the js code
 const fetchButton = document.getElementById("fetch-button");
 const resultsDiv = document.getElementById("results");
 
 const cache = new Map();
+const CACHE_DURATION = 60 * 1000; // 1 minute
 
 const fetchData = async () => {
-  // implement the caching here and store data in cache variable
+  const cacheKey = "trivia-data";
+  const cachedEntry = cache.get(cacheKey);
+  const now = Date.now();
+
+  if (cachedEntry && (now - cachedEntry.timestamp < CACHE_DURATION)) {
+    console.log("Serving data from cache");
+    return cachedEntry.data;
+  }
 
   console.log("Making API call");
+
   const response = await fetch("https://opentdb.com/api.php?amount=3");
   const data = await response.json();
 
+  // Store in cache
   cache.set(cacheKey, {
-    timestamp: Date.now(),
+    timestamp: now,
     data: data,
   });
 
@@ -21,7 +30,7 @@ const fetchData = async () => {
 
 const displayData = (data) => {
   const question = data.results[0].question;
-  resultsDiv.textContent = question;
+  resultsDiv.innerHTML = question;
 };
 
 fetchButton.addEventListener("click", async () => {
