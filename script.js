@@ -3,34 +3,33 @@ const resultsDiv = document.getElementById("results");
 
 const cache = new Map();
 const CACHE_DURATION = 60 * 1000; // 1 minute
+const API_URL = "https://opentdb.com/api.php?amount=3";
 
 const fetchData = async () => {
-  const cacheKey = "trivia-data";
-  const cachedEntry = cache.get(cacheKey);
-  const now = Date.now();
+  const cacheKey = API_URL;
+  const cachedData = cache.get(cacheKey);
+  const currentTime = Date.now();
 
-  if (cachedEntry && (now - cachedEntry.timestamp < CACHE_DURATION)) {
+  if (cachedData && currentTime - cachedData.timestamp < CACHE_DURATION) {
     console.log("Serving data from cache");
-    return cachedEntry.data;
+    return cachedData.data;
   }
 
   console.log("Making API call");
 
-  const response = await fetch("https://opentdb.com/api.php?amount=3");
+  const response = await fetch(API_URL);
   const data = await response.json();
 
-  // Store in cache
   cache.set(cacheKey, {
-    timestamp: now,
-    data: data,
+    timestamp: currentTime,
+    data: data
   });
 
   return data;
 };
 
 const displayData = (data) => {
-  const question = data.results[0].question;
-  resultsDiv.innerHTML = question;
+  resultsDiv.textContent = data.results[0].question;
 };
 
 fetchButton.addEventListener("click", async () => {
