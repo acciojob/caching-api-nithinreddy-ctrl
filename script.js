@@ -2,26 +2,22 @@ const fetchButton = document.getElementById("fetch-button");
 const resultsDiv = document.getElementById("results");
 
 const cache = new Map();
-const CACHE_DURATION = 60 * 1000; // 1 minute
-const API_URL = "https://opentdb.com/api.php?amount=3";
 
 const fetchData = async () => {
-  const cacheKey = API_URL;
-  const cachedData = cache.get(cacheKey);
-  const currentTime = Date.now();
+  const url = "https://opentdb.com/api.php?amount=3";
+  const cached = cache.get(url);
 
-  if (cachedData && currentTime - cachedData.timestamp < CACHE_DURATION) {
+  if (cached && Date.now() - cached.timestamp < 60000) {
     console.log("Serving data from cache");
-    return cachedData.data;
+    return cached.data;
   }
 
   console.log("Making API call");
-
-  const response = await fetch(API_URL);
+  const response = await fetch(url);
   const data = await response.json();
 
-  cache.set(cacheKey, {
-    timestamp: currentTime,
+  cache.set(url, {
+    timestamp: Date.now(),
     data: data
   });
 
